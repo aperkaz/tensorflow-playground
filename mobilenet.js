@@ -5,7 +5,7 @@ global.fetch = fetch;
 
 // const tf = require("@tensorflow/tfjs");
 
-const cocoSsd = require("@tensorflow-models/coco-ssd");
+const mobilenet = require("@tensorflow-models/mobilenet");
 
 const { Image, createCanvas } = require("canvas");
 
@@ -22,7 +22,8 @@ let net;
 
 async function initialize() {
   console.time("loadModel");
-  net = await cocoSsd.load("lite_mobilenet_v2");
+  // net = new mobilenet.MobileNet(1, 1);
+  net = await mobilenet.load();
   console.timeEnd("loadModel");
 }
 
@@ -34,7 +35,8 @@ async function analizeObjects(imgPath) {
   canvas.getContext("2d").drawImage(img, 0, 0);
 
   console.time("detect" + imgPath);
-  const predictions = await net.detect(canvas);
+  const predictions = await net.classify(canvas);
+  console.log(predictions);
   console.timeEnd("detect" + imgPath);
   return predictions;
 }
