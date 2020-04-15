@@ -1,90 +1,48 @@
-/**
- * @license
- * Copyright 2018 Google LLC. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =============================================================================
- */
+const fetch = require("node-fetch");
+global.fetch = fetch;
 
 const tf = require("@tensorflow/tfjs");
+require("@tensorflow/tfjs-node");
 
-const IMAGENET_CLASSES = require("./imagenet_classes");
+const mobilenet = require("@tensorflow-models/mobilenet");
 
-const GOOGLE_CLOUD_STORAGE_DIR =
-  "https://storage.googleapis.com/tfjs-models/savedmodel/";
-const MODEL_FILE_URL = "mobilenet_v2_1.0_224/model.json";
-const INPUT_NODE_NAME = "images";
-const OUTPUT_NODE_NAME = "module_apply_default/MobilenetV2/Logits/output";
-const PREPROCESS_DIVISOR = tf.scalar(255 / 2);
+const { Image, createCanvas } = require("canvas");
 
-class MobileNet {
-  constructor() {}
-
-  async load() {
-    this.model = await tf.loadGraphModel(
-      GOOGLE_CLOUD_STORAGE_DIR + MODEL_FILE_URL
-    );
-  }
-
-  dispose() {
-    if (this.model) {
-      this.model.dispose();
-    }
-  }
-  /**
-   * Infer through MobileNet. This does standard ImageNet pre-processing before
-   * inferring through the model. This method returns named activations as well
-   * as softmax logits.
-   *
-   * @param input un-preprocessed input Array.
-   * @return The softmax logits.
-   */
-  predict(input) {
-    const preprocessedInput = tf.div(
-      tf.sub(input.asType("float32"), PREPROCESS_DIVISOR),
-      PREPROCESS_DIVISOR
-    );
-    const reshapedInput = preprocessedInput.reshape([
-      1,
-      ...preprocessedInput.shape,
-    ]);
-    return this.model.execute(
-      { [INPUT_NODE_NAME]: reshapedInput },
-      OUTPUT_NODE_NAME
-    );
-  }
-
-  getTopKClasses(logits, topK) {
-    const predictions = tf.tidy(() => {
-      return tf.softmax(logits);
-    });
-
-    const values = predictions.dataSync();
-    predictions.dispose();
-
-    let predictionList = [];
-    for (let i = 0; i < values.length; i++) {
-      predictionList.push({ value: values[i], index: i });
-    }
-    predictionList = predictionList
-      .sort((a, b) => {
-        return b.value - a.value;
-      })
-      .slice(0, topK);
-
-    return predictionList.map((x) => {
-      return { label: IMAGENET_CLASSES[x.index], value: x.value };
-    });
-  }
+async function loadImage(buffer) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onerror = (err) => reject(err);
+    img.onload = () => resolve(img);
+    img.src = buffer;
+  });
 }
 
-module.exports = MobileNet;
+let net;
+
+async function initialize() {
+  console.time("loadModel");
+  // net = new mobilenet.MobileNet(1, 1);
+  net = await mobilenet.load();
+  console.timeEnd("loadModel");
+}
+
+async function analizeObjects(imgPath) {
+  console.time("loadImage");
+  const img = await loadImage(imgPath);
+  console.timeEnd("loadImage");
+  const canvas = createCanvas(img.width, img.height);
+  canvas.getContext("2d").drawImage(img, 0, 0);
+
+  // Since the model is trained in 224 pixels, reduce the image size to speed up processing x10
+  const pixels = tf.browser.fromPixels(canvas);
+  const smallImg = tf.image.resizeBilinear(pixels, [224, 224]);
+
+  console.time("detect" + imgPath);
+  // Pass the small image instead of canvas (full size of image)
+  const predictions = await net.classify(smallImg);
+  // const predictions = await net.classify(canvas);
+  console.timeEnd("detect" + imgPath);
+  return predictions;
+}
+
+module.exports = { initialize, analizeObjects };
