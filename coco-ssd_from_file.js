@@ -22,17 +22,10 @@ let net;
 async function initialize() {
   console.time("loadModel");
 
-  // const MODEL_URL = "file://models/coco-ssd_lite_v2/model.json";
   const MODEL_URL = "file://models/coco-ssd_v2/model.json";
-
-  // net = await cocoSsd.load("lite_mobilenet_v2");
 
   net = await cocoSsd.load({
     modelUrl: MODEL_URL,
-    version: 1,
-    alpha: 1,
-    // fix the default of [-1,1]
-    inputRange: [0, 1],
   });
 
   console.timeEnd("loadModel");
