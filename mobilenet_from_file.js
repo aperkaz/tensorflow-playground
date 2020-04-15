@@ -21,14 +21,17 @@ let net;
 
 async function initialize() {
   console.time("loadModel");
-  // net = new mobilenet.MobileNet(1, 1);
+
   const MODEL_URL = "file://mobilenet/model.json";
 
-  net = await tf.loadGraphModel(MODEL_URL);
-  // const cat = document.getElementById("cat");
-  // model.execute(tf.fromPixels(cat));
+  net = await mobilenet.load({
+    modelUrl: MODEL_URL,
+    version: 1,
+    alpha: 1,
+    // fix the default of [-1,1]
+    inputRange: [0, 1],
+  });
 
-  // net = await mobilenet.load();
   console.timeEnd("loadModel");
 }
 
@@ -45,10 +48,27 @@ async function analizeObjects(imgPath) {
 
   console.time("detect" + imgPath);
   // Pass the small image instead of canvas (full size of image)
-  const predictions = await net.execute(smallImg);
+  const predictions = await net.classify(smallImg);
   // const predictions = await net.classify(canvas);
   console.timeEnd("detect" + imgPath);
   return predictions;
 }
+
+// function getTopKClasses(predictionTensor, k = 10) {
+//   let values = predictionTensor.dataSync();
+//   let result = [];
+
+//   for (let i = 0; i < values.length; i++) {
+//     result.push({ index: i, label: IMAGENET_CLASSES[i], value: values[i] });
+//   }
+
+//   result = result
+//     .sort((a, b) => {
+//       return b.value - a.value;
+//     })
+//     .slice(0, k);
+
+//   return result;
+// }
 
 module.exports = { initialize, analizeObjects };
