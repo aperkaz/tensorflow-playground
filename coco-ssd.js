@@ -1,9 +1,8 @@
-require("@tensorflow/tfjs-node");
-
 const fetch = require("node-fetch");
 global.fetch = fetch;
 
-// const tf = require("@tensorflow/tfjs");
+const tf = require("@tensorflow/tfjs");
+require("@tensorflow/tfjs-node");
 
 const cocoSsd = require("@tensorflow-models/coco-ssd");
 
