@@ -22,7 +22,7 @@ let net;
 async function initialize() {
   console.time("loadModel");
 
-  const MODEL_URL = "file://mobilenet/model.json";
+  const MODEL_URL = "file://models/mobilenet/model.json";
 
   net = await mobilenet.load({
     modelUrl: MODEL_URL,
