@@ -47,28 +47,9 @@ async function analizeObjects(imgPath) {
   const smallImg = tf.image.resizeBilinear(pixels, [224, 224]);
 
   console.time("detect" + imgPath);
-  // Pass the small image instead of canvas (full size of image)
   const predictions = await net.classify(smallImg);
-  // const predictions = await net.classify(canvas);
   console.timeEnd("detect" + imgPath);
   return predictions;
 }
-
-// function getTopKClasses(predictionTensor, k = 10) {
-//   let values = predictionTensor.dataSync();
-//   let result = [];
-
-//   for (let i = 0; i < values.length; i++) {
-//     result.push({ index: i, label: IMAGENET_CLASSES[i], value: values[i] });
-//   }
-
-//   result = result
-//     .sort((a, b) => {
-//       return b.value - a.value;
-//     })
-//     .slice(0, k);
-
-//   return result;
-// }
 
 module.exports = { initialize, analizeObjects };

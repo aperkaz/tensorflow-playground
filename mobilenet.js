@@ -21,7 +21,6 @@ let net;
 
 async function initialize() {
   console.time("loadModel");
-  // net = new mobilenet.MobileNet(1, 1);
   net = await mobilenet.load();
   console.timeEnd("loadModel");
 }
@@ -39,8 +38,9 @@ async function analizeObjects(imgPath) {
 
   console.time("detect" + imgPath);
   // Pass the small image instead of canvas (full size of image)
-  const predictions = await net.classify(smallImg);
   // const predictions = await net.classify(canvas);
+  const predictions = await net.classify(smallImg);
+
   console.timeEnd("detect" + imgPath);
   return predictions;
 }
