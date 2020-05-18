@@ -13,6 +13,9 @@
     "@tensorflow-models/mobilenet": "^2.0.4",
     "@tensorflow/tfjs-node": "^1.7.2",
     "canvas": "^2.6.1",
-    "jpeg-js": "^0.3.7"
+    "jpeg-js": "^0.3.7",
+    "readdirp": "^3.4.0",
+    "sharp": "^0.25.3",
+    "tiny-async-pool": "^1.1.0"
   }
 }

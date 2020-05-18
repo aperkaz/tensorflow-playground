@@ -36,19 +36,35 @@ async function initialize() {
 }
 
 async function analizeObjects(imgPath) {
-  console.time("loadImage");
-  const img = await loadImage(imgPath);
-  console.timeEnd("loadImage");
-  const canvas = createCanvas(img.width, img.height);
+  console.time("processImage");
+
+  // console.time("loadImage");
+  let img = await loadImage(imgPath);
+  // console.timeEnd("loadImage");
+  // console.time("createCanvas");
+  let canvas = createCanvas(img.width, img.height);
   canvas.getContext("2d").drawImage(img, 0, 0);
+  // console.timeEnd("createCanvas");
 
   // Since the model is trained in 224 pixels, reduce the image size to speed up processing x10
-  const pixels = tf.browser.fromPixels(canvas);
-  const smallImg = tf.image.resizeBilinear(pixels, [224, 224]);
+  // console.time("create tensors");
+  let pixels = tf.browser.fromPixels(canvas);
+  let smallImg = tf.image.resizeBilinear(pixels, [224, 224]);
+  // console.timeEnd("create tensors");
 
-  console.time("detect" + imgPath);
+  // console.time("detect" + imgPath);
   const predictions = await net.classify(smallImg);
-  console.timeEnd("detect" + imgPath);
+  // console.timeEnd("detect" + imgPath);
+
+  // clean up to avoid memory issues
+  img = null;
+  canvas = null;
+  pixels.dispose();
+  pixels = null;
+  smallImg.dispose();
+  smallImg = null;
+
+  console.timeEnd("processImage");
   return predictions;
 }
 
