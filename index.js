@@ -4,23 +4,23 @@
 const { analizeObjects, initialize } = require("./mobilenet_from_file");
 const resizeImages = require("./resizeImages");
 
-const inputPath = "/home/alain/Desktop/lots_"; // ex. 35GB
-const outputPath = "/home/alain/Desktop/out"; // ex. 300MB x10 smaller
+const inputPath = "/home/alain/Desktop/pics/lots_of_pics"; // ex. 35GB
+const outputPath = "/home/alain/Desktop/pics/out"; // ex. 300MB x10 smaller
 
 async function run() {
   await initialize();
 
-  const imagePaths = await recursivelyFindImages(outputPath); // ex. 2:13.706 (mm:ss.mmm)
+  const imagePaths = await recursivelyFindImages(inputPath); // ex. 2:13.706 (mm:ss.mmm)
   // const imagePaths = await recursivelyFindImages(outputPath); // ex. 42.397 (ss.mmm)
 
   console.time("analizeImages");
   for (let index in imagePaths) {
-    console.log(await analizeObjects(imagePaths[index]));
+    // console.log(await analizeObjects(imagePaths[index]));
   }
   console.timeEnd("analizeImages");
 
   console.time("resizeImages");
-  // await resizeImages(imagePaths, outputPath);
+  await resizeImages(imagePaths, outputPath);
   console.timeEnd("resizeImages");
 
   console.log("images: ", imagePaths.length);

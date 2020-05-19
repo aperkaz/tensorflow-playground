@@ -18,7 +18,7 @@ const resizeImagePromiseIterator = (outputPath) => async (sourcePath) => {
 
   // failOnError: fixes Samsung corrupted pictures
   return sharp(sourcePath, { failOnError: false })
-    .resize(400, 300, { fit: sharp.fit.outside })
+    .resize(1980, 1080, { fit: sharp.fit.outside, withoutEnlargement: true })
     .toFile(`${outputPath}/${fileName}-128x128.jpg`);
 };
 
