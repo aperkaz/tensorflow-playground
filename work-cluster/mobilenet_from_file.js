@@ -8,7 +8,7 @@ const mobilenet = require("@tensorflow-models/mobilenet");
 
 const { Image, createCanvas } = require("canvas");
 
-const {logFunctionPerf} = require('./utils')
+const {logFunctionPerf} = require('../utils')
 
 async function loadImage(buffer) {
   return new Promise((resolve, reject) => {
