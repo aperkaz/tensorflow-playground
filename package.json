@@ -15,7 +15,7 @@
     "canvas": "^2.6.1",
     "jpeg-js": "^0.4.0",
     "readdirp": "^3.4.0",
-    "sharp": "^0.25.3",
+    "sharp": "^0.32.6",
     "throng": "^5.0.0",
     "tiny-async-pool": "^1.1.0",
     "worker-nodes": "^2.3.0"
